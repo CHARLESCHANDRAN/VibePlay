@@ -1,79 +1,88 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# VibePlay — React Native CLI Starter (JavaScript)
 
-# Getting Started
+Tech-Slick AI • Camera + Manual Mood • Movies (TMDb) + Music (Spotify via proxy)
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## What This Is
+A **JavaScript** starter to overlay onto a fresh **React Native CLI** app. It includes:
+- Navigation + dark neon theme
+- Screens: Onboarding, CaptureMood, Intent, Recommendations, Saved
+- Zustand store for mood/intent/energy/valence
+- TMDb integration + Spotify proxy stub
+- **Stubbed emotion detector** (simulated) — swap in VisionCamera + model later
+- `.env.example` for keys
 
-## Step 1: Start the Metro Server
+---
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
-
-To start Metro, run the following command from the _root_ of your React Native project:
+## 1) Create a fresh RN CLI app
 
 ```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
+npx react-native init VibePlay --version 0.76.0
+cd VibePlay
 ```
 
-## Step 2: Start your Application
+## 2) Copy the template files over
+Copy the contents of this zip into your project root, **merging** folders:
+- `App.js`
+- `src/*`
+- `.env.example`
+- `package.json` (merge dependencies into your app's package.json if needed)
+- `babel.config.js` (ensures Reanimated plugin)
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
+Install deps:
 
 ```bash
-# using npm
+npm i @react-navigation/native @react-navigation/native-stack react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context react-native-svg react-native-config zustand react-native-vision-camera
+```
+
+iOS pods:
+
+```bash
+cd ios && pod install && cd ..
+```
+
+## 3) Environment variables
+Create `.env` at the project root (from `.env.example`):
+
+```
+TMDB_API_KEY=YOUR_TMDB_KEY
+SPOTIFY_PROXY_BASE=https://your-proxy.example.com
+```
+
+`react-native-config` will expose these as `Config.TMDB_API_KEY` & `Config.SPOTIFY_PROXY_BASE`.
+
+## 4) Permissions
+
+### Android (`android/app/src/main/AndroidManifest.xml`)
+```xml
+<uses-permission android:name="android.permission.CAMERA"/>
+```
+
+### iOS (`ios/YourApp/Info.plist`)
+```xml
+<key>NSCameraUsageDescription</key>
+<string>On-device mood detection.</string>
+```
+
+## 5) Run it
+
+```bash
 npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### For iOS
-
-```bash
-# using npm
+# or
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+You should see:
+- Onboarding → Capture (simulated detection) → Intent → Recommendations (movies from TMDb)
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+## 6) Next Up: Real Emotion Detection
+- Use **react-native-vision-camera** + a **Frame Processor** to run a tiny classifier (TFLite) and update `useEmotionDetector.js` with real outputs.
+- Keep inference **on-device**. Only send mood labels to services.
 
-## Step 3: Modifying your App
+## 7) Spotify Music (Optional)
+Stand up a tiny proxy (Cloudflare Worker/Node) for client-credentials + `/recommend` hits. App calls `/recommend?target_energy=...` with features from `mapMood.js`.
 
-Now that you have successfully run the app, let's modify it.
+## Notes
+- Pure **JavaScript**; no TypeScript.
+- Designed for **fast hackathon demo** with a clean upgrade path to real camera inference.
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+**Enjoy VibePlay (JS)!** 🚀
