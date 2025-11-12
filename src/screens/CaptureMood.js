@@ -12,6 +12,7 @@ import {
 import { styles } from '../theme/styles';
 import { colors } from '../theme/colors';
 import NeonButton from '../components/NeonButton';
+import CameraEmotionDetector from '../components/CameraEmotionDetector';
 import { useEmotionDetector } from '../hooks/useEmotionDetector';
 import { useStore } from '../state/store';
 
@@ -33,7 +34,7 @@ const MOOD_DATA = {
 export default function CaptureMood({ navigation }){
   const [live, setLive] = useState(true);
   const { mood, setMood, energy, setEnergy, valence, setValence } = useStore();
-  const { mood: detectedMood, confidence } = useEmotionDetector(live);
+  const { mood: detectedMood, confidence, onMoodDetected } = useEmotionDetector(live);
   const ignoreDetection = useRef(false);
 
   // Animation values
@@ -42,7 +43,7 @@ export default function CaptureMood({ navigation }){
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    if (live && !ignoreDetection.current) {
+    if (live && !ignoreDetection.current && detectedMood) {
       setMood(detectedMood, confidence);
     }
   }, [detectedMood, confidence, setMood, live]);
@@ -174,27 +175,36 @@ export default function CaptureMood({ navigation }){
               {live ? 'Detected Mood' : 'Select Your Mood'}
             </Text>
 
-            {/* Large Emoji Display */}
+            {/* Large Emoji/Camera Display */}
             <Animated.View style={{
-              transform: [{ scale: pulseAnim }],
+              transform: [{ scale: live ? 1 : pulseAnim }],
               marginBottom: 20,
             }}>
-              <View style={{
-                width: 160,
-                height: 160,
-                borderRadius: 80,
-                backgroundColor: currentMoodData.bg,
-                borderWidth: 2,
-                borderColor: currentMoodData.color,
-                alignItems: 'center',
-                justifyContent: 'center',
-                shadowColor: currentMoodData.color,
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.4,
-                shadowRadius: 20,
-              }}>
-                <Text style={{ fontSize: 80 }}>{currentMoodData.emoji}</Text>
-              </View>
+              {live ? (
+                // Show camera when live mode is ON
+                <CameraEmotionDetector 
+                  isActive={live}
+                  onMoodDetected={onMoodDetected}
+                />
+              ) : (
+                // Show emoji when manual mode
+                <View style={{
+                  width: 160,
+                  height: 160,
+                  borderRadius: 80,
+                  backgroundColor: currentMoodData.bg,
+                  borderWidth: 2,
+                  borderColor: currentMoodData.color,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  shadowColor: currentMoodData.color,
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.4,
+                  shadowRadius: 20,
+                }}>
+                  <Text style={{ fontSize: 80 }}>{currentMoodData.emoji}</Text>
+                </View>
+              )}
             </Animated.View>
 
             <Text style={{

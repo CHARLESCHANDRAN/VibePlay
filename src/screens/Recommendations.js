@@ -18,9 +18,11 @@ import {
 } from "react-native";
 import { colors } from "../theme/colors";
 import { useStore } from "../state/store";
+import { useToast } from "../hooks/useToast";
 import { buildParams } from "../services/mapMood";
 import { discoverMovies } from "../services/tmdb";
 import { getRecommendations } from "../services/spotify";
+import { SkeletonMovieCard, SkeletonTrackCard, SkeletonHero } from "../components/SkeletonLoaders";
 
 const { width } = Dimensions.get("window");
 
@@ -58,6 +60,7 @@ const GENRE_MAP = {
 
 export default function Recommendations({ navigation }) {
 	const { mood, energy, valence, intent } = useStore();
+	const { showToast } = useToast();
 	const [movies, setMovies] = React.useState([]);
 	const [tracks, setTracks] = React.useState([]);
 	const [loading, setLoading] = React.useState(false);
@@ -176,7 +179,9 @@ export default function Recommendations({ navigation }) {
 			}).start();
 		} catch (err) {
 			console.error("Failed to load recommendations:", err);
-			setError(err?.message || "Failed to load recommendations");
+			const errorMessage = err?.message || "Failed to load recommendations";
+			setError(errorMessage);
+			showToast(errorMessage, 'error');
 		} finally {
 			setLoading(false);
 		}
@@ -213,10 +218,12 @@ export default function Recommendations({ navigation }) {
 	const handleSave = (item) => {
 		setSavedItems((prev) => [...prev, item]);
 		console.log("Saved:", item?.title || item?.name);
+		showToast(`Saved: ${item?.title || item?.name}`, 'success');
 	};
 
 	const handleDismiss = (item) => {
 		console.log("Dismissed:", item?.title || item?.name);
+		showToast('Dismissed', 'info');
 	};
 
 	// Clear filters
@@ -787,20 +794,65 @@ export default function Recommendations({ navigation }) {
 					</Animated.View>
 				)}
 
-				{/* Loading State */}
-				{loading && (
-					<View style={{ padding: 32, alignItems: "center" }}>
-						<Text style={{ color: colors.textDim, fontSize: 16 }}>
-							Loading your recommendations...
-						</Text>
-					</View>
-				)}
+			{/* Loading State with Skeletons */}
+			{loading && (
+				<View>
+					{/* Hero Skeleton */}
+					<SkeletonHero />
 
-				{/* No Results */}
-				{!loading &&
-					searchQuery &&
-					filteredMovies.length === 0 &&
-					filteredTracks.length === 0 && (
+					{/* Continue Watching Skeleton */}
+					<View style={{ paddingHorizontal: 20, marginTop: 24 }}>
+						<View style={{ 
+							width: 180, 
+							height: 24, 
+							backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+							borderRadius: 6,
+							marginBottom: 16 
+						}} />
+						<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+							{[1, 2, 3, 4].map((i) => (
+								<SkeletonMovieCard key={`continue-skeleton-${i}`} />
+							))}
+						</ScrollView>
+					</View>
+
+					{/* Movies Skeleton */}
+					<View style={{ paddingHorizontal: 20, marginTop: 32 }}>
+						<View style={{ 
+							width: 160, 
+							height: 24, 
+							backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+							borderRadius: 6,
+							marginBottom: 16 
+						}} />
+						<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+							{[1, 2, 3, 4, 5].map((i) => (
+								<SkeletonMovieCard key={`movie-skeleton-${i}`} />
+							))}
+						</ScrollView>
+					</View>
+
+					{/* Music Skeleton */}
+					<View style={{ paddingHorizontal: 20, marginTop: 32, marginBottom: 32 }}>
+						<View style={{ 
+							width: 140, 
+							height: 24, 
+							backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+							borderRadius: 6,
+							marginBottom: 16 
+						}} />
+						{[1, 2, 3, 4].map((i) => (
+							<SkeletonTrackCard key={`track-skeleton-${i}`} />
+						))}
+					</View>
+				</View>
+			)}
+			
+			{/* No Results */}
+			{!loading &&
+				searchQuery &&
+				filteredMovies.length === 0 &&
+				filteredTracks.length === 0 && (
 						<View style={{ padding: 32, alignItems: "center" }}>
 							<Text
 								style={{ color: colors.textDim, fontSize: 18, marginBottom: 8 }}

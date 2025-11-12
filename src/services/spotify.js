@@ -148,7 +148,17 @@ export async function getRecommendations(features = {}) {
 		if (!res.ok) {
 			const text = await res.text();
 			console.error("Spotify proxy error:", res.status, text);
-			throw new Error(`Spotify proxy ${res.status}`);
+			
+			// Provide user-friendly error messages
+			if (res.status === 404) {
+				throw new Error("Music service temporarily unavailable");
+			} else if (res.status === 429) {
+				throw new Error("Too many requests. Please try again in a moment");
+			} else if (res.status >= 500) {
+				throw new Error("Music service is having issues. Try again later");
+			} else {
+				throw new Error("Failed to fetch music recommendations");
+			}
 		}
 
 		const data = await res.json();
@@ -156,8 +166,8 @@ export async function getRecommendations(features = {}) {
 		return Array.isArray(data?.tracks) ? data.tracks : [];
 	} catch (error) {
 		console.error("Spotify service error:", error);
-		// Don’t break the page; treat music as optional
-		return [];
+		// Re-throw with user-friendly message
+		throw new Error(error.message || "Unable to load music recommendations");
 	}
 }
 
