@@ -1,4 +1,6 @@
-const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
+
+const defaultConfig = getDefaultConfig(__dirname);
 
 /**
  * Metro configuration
@@ -7,9 +9,21 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
  * @type {import('metro-config').MetroConfig}
  */
 const config = {
-  resolver: {
-    assetExts: ['tflite', 'txt', 'db', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'],
-  },
+	resolver: {
+		assetExts: [
+			...defaultConfig.resolver.assetExts,
+			"bin", // ⬅️ needed for TF.js shards
+			"tflite", // ⬅️ you already had this
+			"txt",
+			"db",
+			"jpg",
+			"jpeg",
+			"png",
+			"gif",
+			"bmp",
+			"webp",
+		],
+	},
 };
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+module.exports = mergeConfig(defaultConfig, config);

@@ -22,7 +22,11 @@ import { useToast } from "../hooks/useToast";
 import { buildParams } from "../services/mapMood";
 import { discoverMovies } from "../services/tmdb";
 import { getRecommendations } from "../services/spotify";
-import { SkeletonMovieCard, SkeletonTrackCard, SkeletonHero } from "../components/SkeletonLoaders";
+import {
+	SkeletonMovieCard,
+	SkeletonTrackCard,
+	SkeletonHero,
+} from "../components/SkeletonLoaders";
 
 const { width } = Dimensions.get("window");
 
@@ -146,14 +150,31 @@ export default function Recommendations({ navigation }) {
 				);
 			}
 
-			// Both in parallel
-			const [moviesResult, tracksResult] = await Promise.all([
+			// Both in parallel - handle failures gracefully
+			const [moviesResult, tracksResult] = await Promise.allSettled([
 				discoverMovies(p.tmdb),
 				getRecommendations(p.spotify),
 			]);
 
-			const safeMovies = Array.isArray(moviesResult) ? moviesResult : [];
-			const safeTracks = Array.isArray(tracksResult) ? tracksResult : [];
+			// Extract movies (always try to get these)
+			const safeMovies =
+				moviesResult.status === "fulfilled" && Array.isArray(moviesResult.value)
+					? moviesResult.value
+					: [];
+
+			// Extract tracks (optional, gracefully handle failure)
+			const safeTracks =
+				tracksResult.status === "fulfilled" && Array.isArray(tracksResult.value)
+					? tracksResult.value
+					: [];
+
+			// Log if Spotify failed but continue with movies
+			if (tracksResult.status === "rejected") {
+				console.warn(
+					"Spotify API failed, continuing with movies only:",
+					tracksResult.reason
+				);
+			}
 
 			const shuffledTracks = [...safeTracks].sort(() => Math.random() - 0.5);
 
@@ -181,7 +202,13 @@ export default function Recommendations({ navigation }) {
 			console.error("Failed to load recommendations:", err);
 			const errorMessage = err?.message || "Failed to load recommendations";
 			setError(errorMessage);
-			showToast(errorMessage, 'error');
+
+			// Still show toast but don't block the UI completely
+			showToast("Some content may be unavailable", "error");
+
+			// Try to set empty arrays so the screen still renders
+			setMovies([]);
+			setTracks([]);
 		} finally {
 			setLoading(false);
 		}
@@ -218,12 +245,12 @@ export default function Recommendations({ navigation }) {
 	const handleSave = (item) => {
 		setSavedItems((prev) => [...prev, item]);
 		console.log("Saved:", item?.title || item?.name);
-		showToast(`Saved: ${item?.title || item?.name}`, 'success');
+		showToast(`Saved: ${item?.title || item?.name}`, "success");
 	};
 
 	const handleDismiss = (item) => {
 		console.log("Dismissed:", item?.title || item?.name);
-		showToast('Dismissed', 'info');
+		showToast("Dismissed", "info");
 	};
 
 	// Clear filters
@@ -248,7 +275,7 @@ export default function Recommendations({ navigation }) {
 				}
 			>
 				{/* Hero Banner Container */}
-				<View style={{ position: 'relative' }}>
+				<View style={{ position: "relative" }}>
 					{/* Hero Banner */}
 					{heroItem && (
 						<ImageBackground
@@ -266,317 +293,337 @@ export default function Recommendations({ navigation }) {
 							}}
 							resizeMode="cover"
 						>
-						{/* Main content overlay */}
-						<View style={{ flex: 1 }}>
-							{/* Top nav with enhanced visibility */}
-							<View
-								style={{
-									flexDirection: "row",
-									alignItems: "center",
-									justifyContent: "space-between",
-									paddingHorizontal: 16,
-									paddingTop: 50,
-									paddingBottom: 16,
-									backgroundColor: 'rgba(11,15,20,0.90)',
-								}}
-							>
-								<Pressable onPress={() => navigation.navigate("Onboarding")}>
-									<Text
-										style={{
-											color: colors.neon,
-											fontSize: 32,
-											fontWeight: "700",
-											textShadowColor: 'rgba(0,0,0,0.8)',
-											textShadowOffset: { width: 0, height: 2 },
-											textShadowRadius: 4,
-										}}
-									>
-										V
-									</Text>
-								</Pressable>
-
-								<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-									{/* Search icon */}
-									<Pressable
-										onPress={() => setShowSearch((s) => !s)}
-										style={{
-											padding: 10,
-											backgroundColor: showSearch ? 'rgba(41,242,255,0.2)' : 'rgba(255,255,255,0.1)',
-											borderRadius: 8,
-											borderWidth: 1,
-											borderColor: showSearch ? colors.neon : 'rgba(255,255,255,0.2)',
-										}}
-									>
-										<Text style={{ color: colors.text, fontSize: 20 }}>🔍</Text>
-									</Pressable>
-									
-									{/* Mood emoji with background */}
-									<View
-										style={{
-											padding: 8,
-											backgroundColor: 'rgba(255,255,255,0.15)',
-											borderRadius: 12,
-											borderWidth: 2,
-											borderColor: colors.neon,
-											minWidth: 48,
-											alignItems: 'center',
-											justifyContent: 'center',
-											shadowColor: colors.neon,
-											shadowOffset: { width: 0, height: 0 },
-											shadowOpacity: 0.5,
-											shadowRadius: 8,
-										}}
-									>
-										<Text style={{ fontSize: 28 }}>
-											{MOOD_EMOJI[mood] || "😐"}
-										</Text>
-									</View>
-								</View>
-							</View>
-
-							{/* Hero content */}
-							<View
-								style={{
-									flex: 1,
-									justifyContent: "flex-end",
-									paddingHorizontal: 16,
-									paddingBottom: 40,
-								}}
-							>
+							{/* Main content overlay */}
+							<View style={{ flex: 1 }}>
+								{/* Top nav with enhanced visibility */}
 								<View
 									style={{
-										backgroundColor: `${colors.bg}dd`,
-										borderRadius: 16,
-										padding: 20,
+										flexDirection: "row",
+										alignItems: "center",
+										justifyContent: "space-between",
+										paddingHorizontal: 16,
+										paddingTop: 50,
+										paddingBottom: 16,
+										backgroundColor: "rgba(11,15,20,0.90)",
 									}}
 								>
-									{/* Genre badges */}
-									{!!(heroItem.genre_ids && heroItem.genre_ids.length) && (
-										<View
+									<Pressable onPress={() => navigation.navigate("Onboarding")}>
+										<Text
 											style={{
-												flexDirection: "row",
-												marginBottom: 12,
-												flexWrap: "wrap",
+												color: colors.neon,
+												fontSize: 32,
+												fontWeight: "700",
+												textShadowColor: "rgba(0,0,0,0.8)",
+												textShadowOffset: { width: 0, height: 2 },
+												textShadowRadius: 4,
 											}}
 										>
-											{heroItem.genre_ids.slice(0, 3).map((genreId) => (
-												<View
-													key={genreId}
-													style={{
-														backgroundColor: `${colors.neon}33`,
-														paddingHorizontal: 12,
-														paddingVertical: 4,
-														borderRadius: 12,
-														borderWidth: 1,
-														borderColor: colors.neon,
-														marginRight: 8,
-														marginBottom: 8,
-													}}
-												>
-													<Text
-														style={{
-															color: colors.neon,
-															fontSize: 12,
-															fontWeight: "600",
-														}}
-													>
-														{GENRE_MAP[genreId] || "Unknown"}
-													</Text>
-												</View>
-											))}
-										</View>
-									)}
+											V
+										</Text>
+									</Pressable>
 
-									<Text
+									<View
 										style={{
-											color: colors.text,
-											fontSize: 32,
-											fontWeight: "800",
-											marginBottom: 8,
+											flexDirection: "row",
+											alignItems: "center",
+											gap: 8,
 										}}
 									>
-										{heroItem.title}
-									</Text>
+										{/* Search icon */}
+										<Pressable
+											onPress={() => setShowSearch((s) => !s)}
+											style={{
+												padding: 10,
+												backgroundColor: showSearch
+													? "rgba(41,242,255,0.2)"
+													: "rgba(255,255,255,0.1)",
+												borderRadius: 8,
+												borderWidth: 1,
+												borderColor: showSearch
+													? colors.neon
+													: "rgba(255,255,255,0.2)",
+											}}
+										>
+											<Text style={{ color: colors.text, fontSize: 20 }}>
+												🔍
+											</Text>
+										</Pressable>
 
-									{typeof heroItem.vote_average === "number" && (
+										{/* Mood emoji with background */}
 										<View
 											style={{
-												flexDirection: "row",
+												padding: 8,
+												backgroundColor: "rgba(255,255,255,0.15)",
+												borderRadius: 12,
+												borderWidth: 2,
+												borderColor: colors.neon,
+												minWidth: 48,
 												alignItems: "center",
+												justifyContent: "center",
+												shadowColor: colors.neon,
+												shadowOffset: { width: 0, height: 0 },
+												shadowOpacity: 0.5,
+												shadowRadius: 8,
+											}}
+										>
+											<Text style={{ fontSize: 28 }}>
+												{MOOD_EMOJI[mood] || "😐"}
+											</Text>
+										</View>
+									</View>
+								</View>
+
+								{/* Hero content */}
+								<View
+									style={{
+										flex: 1,
+										justifyContent: "flex-end",
+										paddingHorizontal: 16,
+										paddingBottom: 40,
+									}}
+								>
+									<View
+										style={{
+											backgroundColor: `${colors.bg}dd`,
+											borderRadius: 16,
+											padding: 20,
+										}}
+									>
+										{/* Genre badges */}
+										{!!(heroItem.genre_ids && heroItem.genre_ids.length) && (
+											<View
+												style={{
+													flexDirection: "row",
+													marginBottom: 12,
+													flexWrap: "wrap",
+												}}
+											>
+												{heroItem.genre_ids.slice(0, 3).map((genreId) => (
+													<View
+														key={genreId}
+														style={{
+															backgroundColor: `${colors.neon}33`,
+															paddingHorizontal: 12,
+															paddingVertical: 4,
+															borderRadius: 12,
+															borderWidth: 1,
+															borderColor: colors.neon,
+															marginRight: 8,
+															marginBottom: 8,
+														}}
+													>
+														<Text
+															style={{
+																color: colors.neon,
+																fontSize: 12,
+																fontWeight: "600",
+															}}
+														>
+															{GENRE_MAP[genreId] || "Unknown"}
+														</Text>
+													</View>
+												))}
+											</View>
+										)}
+
+										<Text
+											style={{
+												color: colors.text,
+												fontSize: 32,
+												fontWeight: "800",
 												marginBottom: 8,
 											}}
 										>
-											<Text
+											{heroItem.title}
+										</Text>
+
+										{typeof heroItem.vote_average === "number" && (
+											<View
 												style={{
-													color: colors.amber,
-													fontSize: 18,
-													marginRight: 6,
+													flexDirection: "row",
+													alignItems: "center",
+													marginBottom: 8,
 												}}
 											>
-												★
-											</Text>
-											<Text
-												style={{
-													color: colors.text,
-													fontSize: 16,
-													fontWeight: "700",
-												}}
-											>
-												{heroItem.vote_average.toFixed(1)}
-											</Text>
+												<Text
+													style={{
+														color: colors.amber,
+														fontSize: 18,
+														marginRight: 6,
+													}}
+												>
+													★
+												</Text>
+												<Text
+													style={{
+														color: colors.text,
+														fontSize: 16,
+														fontWeight: "700",
+													}}
+												>
+													{heroItem.vote_average.toFixed(1)}
+												</Text>
+												<Text
+													style={{
+														color: colors.textDim,
+														fontSize: 14,
+														marginLeft: 6,
+													}}
+												>
+													({heroItem.vote_count || 0} votes)
+												</Text>
+											</View>
+										)}
+
+										{!!heroItem.overview && (
 											<Text
 												style={{
 													color: colors.textDim,
 													fontSize: 14,
-													marginLeft: 6,
+													marginBottom: 16,
+													lineHeight: 20,
+												}}
+												numberOfLines={3}
+											>
+												{heroItem.overview}
+											</Text>
+										)}
+
+										<View style={{ flexDirection: "row" }}>
+											<Pressable
+												onPress={() =>
+													Linking.openURL(
+														`https://www.themoviedb.org/movie/${heroItem.id}`
+													)
+												}
+												style={{
+													backgroundColor: colors.neon,
+													paddingVertical: 12,
+													paddingHorizontal: 24,
+													borderRadius: 8,
+													flexDirection: "row",
+													alignItems: "center",
+													marginRight: 12,
 												}}
 											>
-												({heroItem.vote_count || 0} votes)
-											</Text>
+												<Text
+													style={{
+														color: colors.bg,
+														fontSize: 18,
+														marginRight: 8,
+													}}
+												>
+													▶
+												</Text>
+												<Text
+													style={{
+														color: colors.bg,
+														fontSize: 16,
+														fontWeight: "700",
+													}}
+												>
+													Play
+												</Text>
+											</Pressable>
+											<Pressable
+												style={{
+													backgroundColor: `${colors.surface}cc`,
+													paddingVertical: 12,
+													paddingHorizontal: 24,
+													borderRadius: 8,
+													flexDirection: "row",
+													alignItems: "center",
+												}}
+											>
+												<Text
+													style={{
+														color: colors.text,
+														fontSize: 18,
+														marginRight: 8,
+													}}
+												>
+													ℹ
+												</Text>
+												<Text
+													style={{
+														color: colors.text,
+														fontSize: 16,
+														fontWeight: "700",
+													}}
+												>
+													Info
+												</Text>
+											</Pressable>
 										</View>
-									)}
-
-									{!!heroItem.overview && (
-										<Text
-											style={{
-												color: colors.textDim,
-												fontSize: 14,
-												marginBottom: 16,
-												lineHeight: 20,
-											}}
-											numberOfLines={3}
-										>
-											{heroItem.overview}
-										</Text>
-									)}
-
-									<View style={{ flexDirection: "row" }}>
-										<Pressable
-											onPress={() =>
-												Linking.openURL(
-													`https://www.themoviedb.org/movie/${heroItem.id}`
-												)
-											}
-											style={{
-												backgroundColor: colors.neon,
-												paddingVertical: 12,
-												paddingHorizontal: 24,
-												borderRadius: 8,
-												flexDirection: "row",
-												alignItems: "center",
-												marginRight: 12,
-											}}
-										>
-											<Text
-												style={{
-													color: colors.bg,
-													fontSize: 18,
-													marginRight: 8,
-												}}
-											>
-												▶
-											</Text>
-											<Text
-												style={{
-													color: colors.bg,
-													fontSize: 16,
-													fontWeight: "700",
-												}}
-											>
-												Play
-											</Text>
-										</Pressable>
-										<Pressable
-											style={{
-												backgroundColor: `${colors.surface}cc`,
-												paddingVertical: 12,
-												paddingHorizontal: 24,
-												borderRadius: 8,
-												flexDirection: "row",
-												alignItems: "center",
-											}}
-										>
-											<Text
-												style={{
-													color: colors.text,
-													fontSize: 18,
-													marginRight: 8,
-												}}
-											>
-												ℹ
-											</Text>
-											<Text
-												style={{
-													color: colors.text,
-													fontSize: 16,
-													fontWeight: "700",
-												}}
-											>
-												Info
-											</Text>
-										</Pressable>
 									</View>
 								</View>
 							</View>
-						</View>
-					</ImageBackground>
-				)}
+						</ImageBackground>
+					)}
 
-				{/* Search Bar - Positioned on top */}
-				{showSearch && (
-					<View style={{
-						position: 'absolute',
-						top: 118,
-						left: 0,
-						right: 0,
-						zIndex: 1000,
-						paddingHorizontal: 16,
-						paddingVertical: 16,
-						backgroundColor: 'rgba(11,15,20,0.95)',
-					}}>
+					{/* Search Bar - Positioned on top */}
+					{showSearch && (
 						<View
 							style={{
-								backgroundColor: colors.surface,
-								borderRadius: 12,
+								position: "absolute",
+								top: 118,
+								left: 0,
+								right: 0,
+								zIndex: 1000,
 								paddingHorizontal: 16,
-								paddingVertical: 14,
-								flexDirection: "row",
-								alignItems: "center",
-								borderWidth: 2,
-								borderColor: colors.neon,
+								paddingVertical: 16,
+								backgroundColor: "rgba(11,15,20,0.95)",
 							}}
 						>
-							<Text style={{ fontSize: 18, marginRight: 12 }}>🔍</Text>
-							<TextInput
-								value={searchQuery}
-								onChangeText={setSearchQuery}
-								placeholder="Search movies or music..."
-								placeholderTextColor={colors.textDim}
+							<View
 								style={{
-									flex: 1,
-									color: colors.text,
-									fontSize: 16,
-									fontWeight: '500',
+									backgroundColor: colors.surface,
+									borderRadius: 12,
+									paddingHorizontal: 16,
+									paddingVertical: 14,
+									flexDirection: "row",
+									alignItems: "center",
+									borderWidth: 2,
+									borderColor: colors.neon,
 								}}
-								autoFocus
-							/>
-							{searchQuery.length > 0 && (
-								<Pressable
-									onPress={() => setSearchQuery("")}
+							>
+								<Text style={{ fontSize: 18, marginRight: 12 }}>🔍</Text>
+								<TextInput
+									value={searchQuery}
+									onChangeText={setSearchQuery}
+									placeholder="Search movies or music..."
+									placeholderTextColor={colors.textDim}
 									style={{
-										padding: 6,
-										backgroundColor: 'rgba(255,255,255,0.1)',
-										borderRadius: 6,
+										flex: 1,
+										color: colors.text,
+										fontSize: 16,
+										fontWeight: "500",
 									}}
-								>
-									<Text style={{ color: colors.text, fontSize: 16, fontWeight: '700' }}>
-										✕
-									</Text>
-								</Pressable>
-							)}
+									autoFocus
+								/>
+								{searchQuery.length > 0 && (
+									<Pressable
+										onPress={() => setSearchQuery("")}
+										style={{
+											padding: 6,
+											backgroundColor: "rgba(255,255,255,0.1)",
+											borderRadius: 6,
+										}}
+									>
+										<Text
+											style={{
+												color: colors.text,
+												fontSize: 16,
+												fontWeight: "700",
+											}}
+										>
+											✕
+										</Text>
+									</Pressable>
+								)}
+							</View>
 						</View>
-					</View>
-				)}
+					)}
 				</View>
 
 				{/* Error State */}
@@ -794,65 +841,73 @@ export default function Recommendations({ navigation }) {
 					</Animated.View>
 				)}
 
-			{/* Loading State with Skeletons */}
-			{loading && (
-				<View>
-					{/* Hero Skeleton */}
-					<SkeletonHero />
+				{/* Loading State with Skeletons */}
+				{loading && (
+					<View>
+						{/* Hero Skeleton */}
+						<SkeletonHero />
 
-					{/* Continue Watching Skeleton */}
-					<View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-						<View style={{ 
-							width: 180, 
-							height: 24, 
-							backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-							borderRadius: 6,
-							marginBottom: 16 
-						}} />
-						<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+						{/* Continue Watching Skeleton */}
+						<View style={{ paddingHorizontal: 20, marginTop: 24 }}>
+							<View
+								style={{
+									width: 180,
+									height: 24,
+									backgroundColor: "rgba(255, 255, 255, 0.1)",
+									borderRadius: 6,
+									marginBottom: 16,
+								}}
+							/>
+							<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+								{[1, 2, 3, 4].map((i) => (
+									<SkeletonMovieCard key={`continue-skeleton-${i}`} />
+								))}
+							</ScrollView>
+						</View>
+
+						{/* Movies Skeleton */}
+						<View style={{ paddingHorizontal: 20, marginTop: 32 }}>
+							<View
+								style={{
+									width: 160,
+									height: 24,
+									backgroundColor: "rgba(255, 255, 255, 0.1)",
+									borderRadius: 6,
+									marginBottom: 16,
+								}}
+							/>
+							<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+								{[1, 2, 3, 4, 5].map((i) => (
+									<SkeletonMovieCard key={`movie-skeleton-${i}`} />
+								))}
+							</ScrollView>
+						</View>
+
+						{/* Music Skeleton */}
+						<View
+							style={{ paddingHorizontal: 20, marginTop: 32, marginBottom: 32 }}
+						>
+							<View
+								style={{
+									width: 140,
+									height: 24,
+									backgroundColor: "rgba(255, 255, 255, 0.1)",
+									borderRadius: 6,
+									marginBottom: 16,
+								}}
+							/>
 							{[1, 2, 3, 4].map((i) => (
-								<SkeletonMovieCard key={`continue-skeleton-${i}`} />
+								<SkeletonTrackCard key={`track-skeleton-${i}`} />
 							))}
-						</ScrollView>
+						</View>
 					</View>
+				)}
 
-					{/* Movies Skeleton */}
-					<View style={{ paddingHorizontal: 20, marginTop: 32 }}>
-						<View style={{ 
-							width: 160, 
-							height: 24, 
-							backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-							borderRadius: 6,
-							marginBottom: 16 
-						}} />
-						<ScrollView horizontal showsHorizontalScrollIndicator={false}>
-							{[1, 2, 3, 4, 5].map((i) => (
-								<SkeletonMovieCard key={`movie-skeleton-${i}`} />
-							))}
-						</ScrollView>
-					</View>
-
-					{/* Music Skeleton */}
-					<View style={{ paddingHorizontal: 20, marginTop: 32, marginBottom: 32 }}>
-						<View style={{ 
-							width: 140, 
-							height: 24, 
-							backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-							borderRadius: 6,
-							marginBottom: 16 
-						}} />
-						{[1, 2, 3, 4].map((i) => (
-							<SkeletonTrackCard key={`track-skeleton-${i}`} />
-						))}
-					</View>
-				</View>
-			)}
-			
-			{/* No Results */}
-			{!loading &&
-				searchQuery &&
-				filteredMovies.length === 0 &&
-				filteredTracks.length === 0 && (
+				{/* No Results */}
+				{!loading &&
+					searchQuery &&
+					filteredMovies.length === 0 &&
+					filteredTracks.length === 0 && (
 						<View style={{ padding: 32, alignItems: "center" }}>
 							<Text
 								style={{ color: colors.textDim, fontSize: 18, marginBottom: 8 }}
@@ -868,6 +923,57 @@ export default function Recommendations({ navigation }) {
 									}}
 								>
 									Clear filters
+								</Text>
+							</Pressable>
+						</View>
+					)}
+
+				{/* No Content Available (API failures) */}
+				{!loading &&
+					!searchQuery &&
+					movies.length === 0 &&
+					tracks.length === 0 && (
+						<View style={{ padding: 32, alignItems: "center", marginTop: 100 }}>
+							<Text style={{ fontSize: 48, marginBottom: 16 }}>📡</Text>
+							<Text
+								style={{
+									color: colors.text,
+									fontSize: 20,
+									fontWeight: "700",
+									marginBottom: 8,
+									textAlign: "center",
+								}}
+							>
+								No Content Available
+							</Text>
+							<Text
+								style={{
+									color: colors.textDim,
+									fontSize: 14,
+									textAlign: "center",
+									marginBottom: 20,
+								}}
+							>
+								Unable to load recommendations.{"\n"}Check your connection and
+								try again.
+							</Text>
+							<Pressable
+								onPress={handleRefresh}
+								style={{
+									backgroundColor: colors.neon,
+									paddingVertical: 12,
+									paddingHorizontal: 24,
+									borderRadius: 8,
+								}}
+							>
+								<Text
+									style={{
+										color: colors.bg,
+										fontSize: 16,
+										fontWeight: "700",
+									}}
+								>
+									Retry
 								</Text>
 							</Pressable>
 						</View>

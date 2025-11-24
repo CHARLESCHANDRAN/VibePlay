@@ -1,0 +1,108 @@
+// src/ml/emotionModel.js
+import * as tf from "@tensorflow/tfjs";
+import "@tensorflow/tfjs-react-native";
+import { bundleResourceIO } from "@tensorflow/tfjs-react-native";
+import RNFS from "react-native-fs";
+
+// IMPORTANT: this order must match the model output
+const EMOTION_LABELS = [
+	"angry",
+	"happy",
+	"sad",
+	"surprised",
+	"neutral",
+	"calm",
+	"tired",
+];
+
+// Map model emotion → app mood keys (same mapping you already use)
+const EMOTION_TO_MOOD = {
+	angry: "angry",
+	happy: "happy",
+	sad: "sad",
+	surprised: "surprised",
+	neutral: "neutral",
+	calm: "calm",
+	tired: "tired",
+	fear: "anxious",
+	disgust: "angry",
+};
+
+let modelPromise = null;
+
+export async function loadEmotionModel() {
+	if (!modelPromise) {
+		modelPromise = (async () => {
+			await tf.ready();
+			// Use RN backend for better perf
+			await tf.setBackend("rn");
+
+			const modelJson = require("/Users/cchandran/Documents/GenAI/hackhaton/VibePlay/src/ml/emotion-model/model.json");
+			const modelWeights = [
+				require("/Users/cchandran/Documents/GenAI/hackhaton/VibePlay/src/ml/emotion-model/group1-shard1of2.bin"),
+				require("/Users/cchandran/Documents/GenAI/hackhaton/VibePlay/src/ml/emotion-model/group1-shard2of2.bin"),
+			];
+
+			const model = await tf.loadGraphModel(
+				bundleResourceIO(modelJson, modelWeights)
+			);
+			return model;
+		})();
+	}
+	return modelPromise;
+}
+
+/**
+ * Run emotion inference on an image file from VisionCamera.
+ * @param {string} filePath local file path (photo.path)
+ */
+export async function analyzeEmotionFromImage(filePath) {
+	const model = await loadEmotionModel();
+
+	// Read image file as binary
+	const imgB64 = await RNFS.readFile(filePath, "base64");
+	const imgBuffer = Buffer.from(imgB64, "base64");
+
+	// Decode JPEG into tensor (H, W, 3)
+	const imageTensor = tf.node.decodeImage
+		? tf.node.decodeImage(imgBuffer, 3) // if node decodeImage is available
+		: tf.tidy(() => {
+				// Fallback: if not available, you’ll need a different decode strategy
+				throw new Error("decodeImage not available on this platform");
+		  });
+
+	// Resize / normalize according to how your model was trained
+	const INPUT_SIZE = 224; // or 128/160 etc.
+	const input = tf.tidy(() => {
+		return imageTensor
+			.resizeBilinear([INPUT_SIZE, INPUT_SIZE])
+			.toFloat()
+			.div(255.0)
+			.expandDims(0); // [1, H, W, 3]
+	});
+
+	const logits = model.predict(input); // [1, num_classes]
+
+	const { mood, confidence } = tf.tidy(() => {
+		const probs = tf.softmax(logits);
+		const values = probs.dataSync();
+		let maxIdx = 0;
+		let maxVal = values[0];
+
+		for (let i = 1; i < values.length; i++) {
+			if (values[i] > maxVal) {
+				maxVal = values[i];
+				maxIdx = i;
+			}
+		}
+
+		const rawEmotion = EMOTION_LABELS[maxIdx] || "neutral";
+		const mappedMood = EMOTION_TO_MOOD[rawEmotion] || "neutral";
+
+		return { mood: mappedMood, confidence: maxVal };
+	});
+
+	tf.dispose([imageTensor, input, logits]);
+
+	return { mood, confidence };
+}

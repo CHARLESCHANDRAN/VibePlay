@@ -148,7 +148,7 @@ export async function getRecommendations(features = {}) {
 		if (!res.ok) {
 			const text = await res.text();
 			console.error("Spotify proxy error:", res.status, text);
-			
+
 			// Provide user-friendly error messages
 			if (res.status === 404) {
 				throw new Error("Music service temporarily unavailable");
