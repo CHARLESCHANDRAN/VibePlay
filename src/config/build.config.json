@@ -2,8 +2,8 @@
 	"app": {
 		"name": "VibePlay",
 		"displayName": "VibePlay",
-		"version": "0.1.0",
-		"bundleId": "com.vibeplay"
+		"version": "1.0.0",
+		"bundleId": "com.gtech.vibeplay.mobile"
 	},
 	"ios": {
 		"scheme": "VibePlay",
@@ -12,16 +12,18 @@
 			"debug": "Debug",
 			"release": "Release"
 		},
-		"teamId": "",
-		"bundleIdentifier": "com.VibePlay.app",
+		"teamId": "PN2S4FKKMR",
+		"bundleIdentifier": "com.gtech.vibeplay.mobile",
 		"signing": {
-			"certificate": "",
-			"provisioningProfile": "",
+			"certificate": "ios/GTECH CORPORATION.p12",
+			"certificatePassword": "admin",
+			"provisioningProfile": "ios/XCVibeplay.mobileprovision",
+			"provisioningProfileSpecifier": "XCVibeplay",
 			"exportOptionsPlist": "ios/exportOptions.plist"
 		}
 	},
 	"android": {
-		"applicationId": "com.vibeplay",
+		"applicationId": "com.gtech.vibeplay.mobile",
 		"module": "app",
 		"buildTypes": {
 			"debug": {},
@@ -31,10 +33,10 @@
 			}
 		},
 		"signing": {
-			"keystorePath": "",
-			"keystorePassword": "",
-			"keyAlias": "",
-			"keyPassword": ""
+			"keystorePath": "android/app/my-release-key.keystore",
+			"keystorePassword": "welcome",
+			"keyAlias": "my-key-alias",
+			"keyPassword": "welcome"
 		}
 	},
 	"scripts": {

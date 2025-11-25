@@ -9,7 +9,7 @@ console.log(
 
 const VISION_API_ENDPOINT =
 	config.VISION_API_ENDPOINT ||
-	"http://my-vision-express-env.eba-39zxiwnb.us-west-2.elasticbeanstalk.com";
+	"https://my-vision-express-env.eba-39zxiwnb.us-west-2.elasticbeanstalk.com";
 
 console.log(
 	"[visionApi] Final VISION_API_ENDPOINT to use:",

@@ -1,4 +1,4 @@
-package com.vibeplay
+package com.gtech.vibeplay.mobile
 
 import android.app.Application
 import com.facebook.react.PackageList

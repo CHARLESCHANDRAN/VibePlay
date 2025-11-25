@@ -382,118 +382,131 @@ export default function CaptureMood({ navigation }) {
 						)}
 					</View>
 
-					{/* Mood Grid */}
-					<View style={{ paddingHorizontal: 20, marginBottom: 40 }}>
-						<Text
-							style={{
-								color: colors.textDim,
-								fontSize: 14,
-								fontWeight: "600",
-								letterSpacing: 1,
-								textTransform: "uppercase",
-								marginBottom: 16,
-								textAlign: "center",
-							}}
-						>
-							{detectedEmotion ? "Or choose manually:" : "Choose your mood:"}
-						</Text>
-
-						<View
-							style={{
-								flexDirection: "row",
-								flexWrap: "wrap",
-								justifyContent: "center",
-								gap: 12,
-							}}
-						>
-							{moods.map((moodKey) => {
-								const moodData = MOOD_DATA[moodKey];
-								const isSelected = selectedMood === moodKey;
-
-								return (
-									<Pressable
-										key={moodKey}
-										onPress={() => handleMoodSelect(moodKey)}
-										style={{
-											width: 100,
-											alignItems: "center",
-											paddingVertical: 16,
-											paddingHorizontal: 8,
-											borderRadius: 12,
-											borderWidth: 2,
-											borderColor: isSelected ? moodData.color : "transparent",
-											backgroundColor: isSelected
-												? moodData.bg
-												: "rgba(255,255,255,0.05)",
-											shadowColor: isSelected ? moodData.color : "transparent",
-											shadowOffset: { width: 0, height: 4 },
-											shadowOpacity: isSelected ? 0.5 : 0,
-											shadowRadius: 8,
-										}}
-									>
-										<Text style={{ fontSize: 40, marginBottom: 8 }}>
-											{moodData.emoji}
-										</Text>
-										<Text
-											style={{
-												color: isSelected ? moodData.color : colors.textDim,
-												fontSize: 12,
-												fontWeight: isSelected ? "700" : "500",
-												textAlign: "center",
-											}}
-										>
-											{moodData.label}
-										</Text>
-									</Pressable>
-								);
-							})}
-						</View>
-
-						{/* Camera Detection Option */}
-						{!detectedEmotion && (
-							<View
+					{/* Camera Detection Option - Primary */}
+					{!detectedEmotion && (
+						<View style={{ paddingHorizontal: 20, marginBottom: 32 }}>
+							<Text
 								style={{
-									width: "100%",
-									paddingTop: 24,
-									marginTop: 16,
-									borderTopWidth: 1,
-									borderTopColor: "rgba(255, 255, 255, 0.1)",
+									color: colors.text,
+									fontSize: 16,
+									fontWeight: "600",
+									letterSpacing: 0.5,
+									marginBottom: 16,
+									textAlign: "center",
 								}}
+							>
+								Let's detect your mood
+							</Text>
+							<Pressable
+								style={{
+									paddingHorizontal: 24,
+									paddingVertical: 18,
+									borderRadius: 12,
+									backgroundColor: "rgba(192, 255, 0, 0.15)",
+									borderWidth: 2,
+									borderColor: colors.neon,
+									alignItems: "center",
+									shadowColor: colors.neon,
+									shadowOffset: { width: 0, height: 4 },
+									shadowOpacity: 0.3,
+									shadowRadius: 8,
+								}}
+								onPress={handleCapturePress}
 							>
 								<Text
 									style={{
-										color: colors.textDim,
-										fontSize: 13,
-										textAlign: "center",
-										marginBottom: 12,
+										color: colors.neon,
+										fontSize: 18,
+										fontWeight: "bold",
 									}}
 								>
-									Or try camera detection
+									📸 Capture My Vibe
 								</Text>
-								<Pressable
-									style={{
-										paddingHorizontal: 24,
-										paddingVertical: 14,
-										borderRadius: 10,
-										backgroundColor: "rgba(192, 255, 0, 0.1)",
-										borderWidth: 2,
-										borderColor: colors.neon,
-										alignItems: "center",
-									}}
-									onPress={handleCapturePress}
-								>
-									<Text
-										style={{
-											color: colors.neon,
-											fontSize: 16,
-											fontWeight: "bold",
-										}}
-									>
-										📸 Capture My Vibe
-									</Text>
-								</Pressable>
+							</Pressable>
+						</View>
+					)}
+
+					{/* Mood Grid - Manual Fallback */}
+					<View style={{ paddingHorizontal: 20, marginBottom: 40 }}>
+						<View
+							style={{
+								paddingTop: 20,
+								marginTop: 16,
+								borderTopWidth: 1,
+								borderTopColor: "rgba(255, 255, 255, 0.1)",
+							}}
+						>
+							<Text
+								style={{
+									color: colors.textDim,
+									fontSize: 13,
+									fontWeight: "600",
+									letterSpacing: 1,
+									textTransform: "uppercase",
+									marginBottom: 16,
+									textAlign: "center",
+								}}
+							>
+								{detectedEmotion
+									? "Or choose a different mood:"
+									: "Or select manually:"}
+							</Text>
+
+							<View
+								style={{
+									flexDirection: "row",
+									flexWrap: "wrap",
+									justifyContent: "center",
+									gap: 12,
+								}}
+							>
+								{moods.map((moodKey) => {
+									const moodData = MOOD_DATA[moodKey];
+									const isSelected = selectedMood === moodKey;
+
+									return (
+										<Pressable
+											key={moodKey}
+											onPress={() => handleMoodSelect(moodKey)}
+											style={{
+												width: 100,
+												alignItems: "center",
+												paddingVertical: 16,
+												paddingHorizontal: 8,
+												borderRadius: 12,
+												borderWidth: 2,
+												borderColor: isSelected
+													? moodData.color
+													: "transparent",
+												backgroundColor: isSelected
+													? moodData.bg
+													: "rgba(255,255,255,0.05)",
+												shadowColor: isSelected
+													? moodData.color
+													: "transparent",
+												shadowOffset: { width: 0, height: 4 },
+												shadowOpacity: isSelected ? 0.5 : 0,
+												shadowRadius: 8,
+											}}
+										>
+											<Text style={{ fontSize: 40, marginBottom: 8 }}>
+												{moodData.emoji}
+											</Text>
+											<Text
+												style={{
+													color: isSelected ? moodData.color : colors.textDim,
+													fontSize: 12,
+													fontWeight: isSelected ? "700" : "500",
+													textAlign: "center",
+												}}
+											>
+												{moodData.label}
+											</Text>
+										</Pressable>
+									);
+								})}
 							</View>
-						)}
+						</View>
 					</View>
 
 					{/* Energy & Valence Sliders */}
