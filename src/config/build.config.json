@@ -3,6 +3,8 @@
 		"name": "VibePlay",
 		"displayName": "VibePlay",
 		"version": "1.0.0",
+		"versionCode": 1,
+		"buildNumber": "1",
 		"bundleId": "com.gtech.vibeplay.mobile"
 	},
 	"ios": {

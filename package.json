@@ -12,6 +12,7 @@
 		"build:android": "node scripts/build.js android release",
 		"build:all": "node scripts/build.js all release",
 		"build": "node scripts/build.js all release",
+		"sync-version": "node scripts/sync-version.js",
 		"lint": "eslint .",
 		"clean": "rm -rf node_modules ios/Pods ios/Podfile.lock && npm install && cd ios && arch -arm64 pod install"
 	},

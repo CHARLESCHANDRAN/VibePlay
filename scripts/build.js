@@ -35,8 +35,14 @@ console.log(
 	`\n🚀 Building ${buildConfig.app.name} for ${platform} (${mode})\n`
 );
 console.log(`📦 Bundle ID: ${buildConfig.app.bundleId}`);
-console.log(`📱 Version: ${buildConfig.app.version}`);
+console.log(
+	`📱 Version: ${buildConfig.app.version} (Code: ${buildConfig.app.versionCode}, Build: ${buildConfig.app.buildNumber})`
+);
 console.log(`📂 Output: ${outputDir}\n`);
+
+// Sync version to package.json
+console.log("🔄 Syncing version to package.json...");
+execSync("node scripts/sync-version.js", { stdio: "inherit" });
 
 try {
 	if (platform === "all") {
@@ -56,8 +62,39 @@ try {
 	process.exit(1);
 }
 
+function updateIOSVersion() {
+	const projectPath = path.join(
+		__dirname,
+		"../ios/VibePlay.xcodeproj/project.pbxproj"
+	);
+	let projectContent = fs.readFileSync(projectPath, "utf8");
+
+	const version = buildConfig.app.version;
+	const buildNumber = buildConfig.app.buildNumber;
+
+	console.log(`📝 Updating iOS version to ${version} (${buildNumber})...`);
+
+	// Update MARKETING_VERSION
+	projectContent = projectContent.replace(
+		/MARKETING_VERSION = [^;]+;/g,
+		`MARKETING_VERSION = ${version};`
+	);
+
+	// Update CURRENT_PROJECT_VERSION
+	projectContent = projectContent.replace(
+		/CURRENT_PROJECT_VERSION = [^;]+;/g,
+		`CURRENT_PROJECT_VERSION = ${buildNumber};`
+	);
+
+	fs.writeFileSync(projectPath, projectContent, "utf8");
+	console.log("✅ iOS version updated successfully\n");
+}
+
 function buildIOS(mode) {
 	console.log("\n📱 ========== iOS BUILD ==========\n");
+
+	// Update version info first
+	updateIOSVersion();
 
 	const config = buildConfig.ios;
 	const configuration =

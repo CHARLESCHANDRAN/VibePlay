@@ -72,6 +72,16 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
+/**
+ * Read build configuration from build.config.json
+ */
+def getBuildConfig() {
+    def configFile = file("../../src/config/build.config.json")
+    return new groovy.json.JsonSlurper().parseText(configFile.text)
+}
+
+def buildConfig = getBuildConfig()
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -82,8 +92,8 @@ android {
         applicationId "com.gtech.vibeplay.mobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        versionCode buildConfig.app.versionCode
+        versionName buildConfig.app.version
     }
     signingConfigs {
         debug {
