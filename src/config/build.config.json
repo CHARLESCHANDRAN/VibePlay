@@ -1,0 +1,50 @@
+{
+	"app": {
+		"name": "VibePlay",
+		"displayName": "VibePlay",
+		"version": "0.1.0",
+		"bundleId": "com.vibeplay"
+	},
+	"ios": {
+		"scheme": "VibePlay",
+		"workspace": "ios/VibePlay.xcworkspace",
+		"configuration": {
+			"debug": "Debug",
+			"release": "Release"
+		},
+		"teamId": "",
+		"bundleIdentifier": "com.VibePlay.app",
+		"signing": {
+			"certificate": "",
+			"provisioningProfile": "",
+			"exportOptionsPlist": "ios/exportOptions.plist"
+		}
+	},
+	"android": {
+		"applicationId": "com.vibeplay",
+		"module": "app",
+		"buildTypes": {
+			"debug": {},
+			"release": {
+				"minifyEnabled": false,
+				"proguardFiles": ["proguard-rules.pro"]
+			}
+		},
+		"signing": {
+			"keystorePath": "",
+			"keystorePassword": "",
+			"keyAlias": "",
+			"keyPassword": ""
+		}
+	},
+	"scripts": {
+		"ios": {
+			"dev": "react-native run-ios --configuration Debug",
+			"release": "react-native run-ios --configuration Release"
+		},
+		"android": {
+			"dev": "react-native run-android --mode=debug",
+			"release": "react-native run-android --mode=release"
+		}
+	}
+}

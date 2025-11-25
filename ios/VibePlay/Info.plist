@@ -42,7 +42,7 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>VibePlay uses on-device mood detection. Images never leave your device.</string>
+	<string>VibePlay captures your photo to analyze your mood using Google Cloud Vision API. Images are processed securely and not stored.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>UILaunchStoryboardName</key>
