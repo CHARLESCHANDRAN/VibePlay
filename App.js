@@ -1,4 +1,5 @@
 import React from "react";
+import BootSplash from "react-native-bootsplash";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import ErrorBoundary from "./src/components/ErrorBoundary";
 import Toast from "./src/components/Toast";
@@ -7,7 +8,10 @@ import AppNavigator from "./src/navigation/AppNavigator";
 
 export default function App() {
 	const { visible, message, type, hideToast } = useToast();
-
+	// In your root component (e.g., after fonts/images load)
+	useEffect(() => {
+		BootSplash.hide({ fade: true });
+	}, []);
 	console.log("App component rendering...");
 	return (
 		<SafeAreaProvider>
