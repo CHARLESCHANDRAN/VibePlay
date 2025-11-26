@@ -12,7 +12,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		5FC7AE9519A574EE9B0352B1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		LAUNCHXIB1234567890ABCD1234 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = LAUNCHXIB1234567890ABCD5678 /* LaunchScreen.xib */; };
 		F503FCB0C13D74D223295E1F /* libPods-VibePlay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA1899CE63D1E37BEF532E3C /* libPods-VibePlay.a */; };
+		SPLASH1234567890ABCDEF1234 /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = SPLASH1234567890ABCDEF5678 /* splash.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,10 +28,14 @@
 		4357B901F08479E8E904B685 /* Pods-VibePlay.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VibePlay.debug.xcconfig"; path = "Target Support Files/Pods-VibePlay/Pods-VibePlay.debug.xcconfig"; sourceTree = "<group>"; };
 		5646B651AEF4BED01FBB1E4F /* Pods-VibePlay-VibePlayTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VibePlay-VibePlayTests.debug.xcconfig"; path = "Target Support Files/Pods-VibePlay-VibePlayTests/Pods-VibePlay-VibePlayTests.debug.xcconfig"; sourceTree = "<group>"; };
 		78F6805193B695FB74079F81 /* Pods-VibePlay-VibePlayTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VibePlay-VibePlayTests.release.xcconfig"; path = "Target Support Files/Pods-VibePlay-VibePlayTests/Pods-VibePlay-VibePlayTests.release.xcconfig"; sourceTree = "<group>"; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VibePlay/LaunchScreen.storyboard; sourceTree = "<group>"; };
+				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VibePlay/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		LAUNCHXIB1234567890ABCD5678 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = LaunchScreen.xib; path = VibePlay/LaunchScreen.xib; sourceTree = "<group>"; };
+		SPLASH1234567890ABCDEF5678 /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = splash.png; path = VibePlay/splash.png; sourceTree = "<group>"; };
+		9308FFE205808FA26638642C /* Pods-VibePlay.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VibePlay.release.xcconfig"; path = "Target Support Files/Pods-VibePlay/Pods-VibePlay.release.xcconfig"; sourceTree = "<group>"; };
 		9308FFE205808FA26638642C /* Pods-VibePlay.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VibePlay.release.xcconfig"; path = "Target Support Files/Pods-VibePlay/Pods-VibePlay.release.xcconfig"; sourceTree = "<group>"; };
 		BA1899CE63D1E37BEF532E3C /* libPods-VibePlay.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VibePlay.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		SPLASH1234567890ABCDEF5678 /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = splash.png; path = VibePlay/splash.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +58,8 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
+				LAUNCHXIB1234567890ABCD5678 /* LaunchScreen.xib */,
+				SPLASH1234567890ABCDEF5678 /* splash.png */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
 			);
@@ -168,7 +176,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				LAUNCHXIB1234567890ABCD1234 /* LaunchScreen.xib in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				SPLASH1234567890ABCDEF1234 /* splash.png in Resources */,
 				5FC7AE9519A574EE9B0352B1 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -268,6 +278,7 @@
 			baseConfigurationReference = 4357B901F08479E8E904B685 /* Pods-VibePlay.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -299,6 +310,7 @@
 			baseConfigurationReference = 9308FFE205808FA26638642C /* Pods-VibePlay.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
