@@ -1,6 +1,8 @@
-# VibePlay# VibePlay — React Native CLI Starter (JavaScript)
+# VibePlay — React Native CLI Starter (JavaScript)
 
-A React Native mood-based recommendation app that suggests movies and music based on detected emotions.Tech-Slick AI • Camera + Manual Mood • Movies (TMDb) + Music (Spotify via proxy)
+Integrated: Google Cloud Vision API for emotion detection
+
+A React Native mood-based recommendation app that suggests movies and music based on detected emotions. Tech-Slick AI • Camera + Manual Mood • Movies (TMDb) + Music (Spotify via proxy)
 
 ## 📁 Project Structure## What This Is
 
